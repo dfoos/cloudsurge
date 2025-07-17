@@ -60,7 +60,6 @@ resource "aws_instance" "app" {
               <head><title>CloudSurge</title></head>
               <body>
                   <h1>Welcome to CloudSurge!</h1>
-                  <img src="https://s3.us-east-1.amazonaws.com/derrickfoos.com/images/OnBase-Logo.png" alt="OnBase Logo">
               </body>
               </html>
               HTML
