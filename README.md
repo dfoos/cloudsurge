@@ -7,7 +7,12 @@ CloudSurge is a proof-of-concept (PoC) platform for managing an AWS EC2 instance
 - **Admin Webpage** (`admin.html`): Enables administrators to start or stop the EC2 instance.
 - **EC2 Webpage**: Displays a simple welcome page with the OnBase logo when the instance is running.
 
-CloudSurge leverages AWS services (EC2, API Gateway, Lambda, Dynamo) and Terraform for infrastructure management, making it an ideal demo for cloud automation.
+CloudSurge leverages AWS services (EC2, API Gateway, Lambda, Dynamo) and Terraform for infrastructure management, making it an ideal demo for AWS cloud automation.
+
+### CloudSurge in Action
+
+Watch Derrick demo CloudSurge
+[![Watch the video](https://img.youtube.com/vi/gxzmq7Qi7pw/default.jpg)](https://youtu.be/gxzmq7Qi7pw)
 
 ## Tokens System
 
@@ -84,7 +89,6 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 - **AWS Account**: Access to an AWS account with administrative privileges.
 - **Terraform**: Version 1.5 or later installed.
 - **Git**: For cloning the repository.
-- **AWS CLI**: Configured with credentials.
 - **Windows Host**: Command Prompt and PowerShell for running commands.
 - **Web Browser**: For testing webpages.
 - **Text Editor**: To update HTML files (e.g., Notepad).
@@ -99,16 +103,17 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 2. **Create an IAM User for Terraform**:
    - In the AWS Console, navigate to **IAM** > **Users** > **Add users**.
    - Name the user (e.g., `terraform-user`) and select **Programmatic access**.
-   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production (use `custom_permisiions.json`)).
+   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production (use `custom_permissions.json`)).
    - Download the **Access Key ID** and **Secret Access Key** CSV file.
 
-3. **Configure AWS CLI**:
-   - Install the AWS CLI: [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
-   - Run:
+3. **Store AWS Credentials**:
      ```cmd
-     aws configure
+      rem Set the environment variables command prompt
+      set AWS_ACCESS_KEY_ID=<your-access-key-id>
+      set AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
+      set AWS_REGION=us-east-1
      ```
-   - Enter the Access Key ID, Secret Access Key, region (e.g., `us-east-1`), and output format (`json`).
+
 
 ## Setting Up Terraform
 
@@ -150,8 +155,6 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
    ```
 
 2. **Apply Infrastructure**:
-   - Create a key pair for EC2 (e.g., `powergrid-key`) in the AWS Console under **EC2** > **Key Pairs**.
-   - Update `main.tf` or `modules/ec2/main.tf` with your `key_name` and region-specific AMI (e.g., `ami-0f3f13f145e66a0a3` for us-east-1).
    - Run:
      ```cmd
      terraform apply
@@ -237,23 +240,12 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 
 ## Using the HTML Files
 
-1. **Test Locally**:
-   - Start a local web server:
-     ```cmd
-     python -m http.server 8000
-     ```
-   - Open in a browser:
-     - User page: `http://localhost:8000/index.html`
-       - Displays instance state (ON/OFF) and a switch to start a stopped instance.
-     - Admin page: `http://localhost:8000/admin.html`
-       - Displays instance state and a switch to start or stop the instance.
-
-2. **View EC2 Webpage**:
+1. **View EC2 Webpage**:
    - Get the EC2 public IP:
      ```cmd
      terraform output instance_ip
      ```
-   - Browse to `http://<instance_ip>` to see the welcome page with the OnBase logo.
+   - Browse to `http://<instance_ip>` to see the welcome page with the logo.
 
 ## Calling the API Directly with PowerShell
 
