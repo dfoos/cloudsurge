@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudSurge Admin Control</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #4ade80;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const App = () => {
+      const [podState, setPodState] = useState(null);
+      const [tokenCount, setTokenCount] = useState(null);
+      const [newTokenCount, setNewTokenCount] = useState('');
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+
+        // Replace with Terraform outputs
+        const API_KEY = ''; // Your API Gateway API key (e.g., from aws_api_gateway_api_key.ec2_control_key)
+        // STATE_ENDPOINT: URL for checking EC2 instance state
+        // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2/state
+        // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2/state
+        const STATE_ENDPOINT = '';
+        // CONTROL_ENDPOINT: URL for starting/stopping EC2 instances
+        // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2
+        // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2
+        const CONTROL_ENDPOINT = '';
+        // TOKENS_COUNT_ENDPOINT: URL for getting or updating token count
+        // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/tokens/count
+        // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/tokens/count
+        const TOKENS_COUNT_ENDPOINT = '';
+        const TOKEN_ID = 'my-token';
+
+      // Fetch EC2 state and token count on load
+      useEffect(() => {
+        setLoading(true);
+        Promise.all([
+          fetch(`${STATE_ENDPOINT}`, {
+            method: 'GET',
+            headers: {
+              'x-api-key': API_KEY,
+              'Content-Type': 'application/json'
+            }
+          }).then(res => {
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            return res.json();
+          }),
+          fetch(`${TOKENS_COUNT_ENDPOINT}?id=${TOKEN_ID}`, {
+            method: 'GET',
+            headers: {
+              'x-api-key': API_KEY,
+              'Content-Type': 'application/json'
+            }
+          }).then(res => {
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            return res.json();
+          })
+        ])
+          .then(([stateData, tokenData]) => {
+            console.log('State fetch response:', stateData);
+            console.log('Token fetch response:', tokenData);
+            setPodState(stateData.state ? stateData.state.trim().toLowerCase() : '');
+            setTokenCount(tokenData.count !== undefined ? tokenData.count : 0);
+            setLoading(false);
+          })
+          .catch(err => {
+            console.error('Fetch error:', err.message);
+            setError(`Failed to fetch data: ${err.message}`);
+            setLoading(false);
+          });
+      }, []);
+
+      // Handle switch toggle (start or stop pods)
+      const handleToggle = () => {
+        if (podState === 'mix') return;
+
+        setLoading(true);
+        const action = podState === 'running' ? 'stop' : 'start';
+        fetch(CONTROL_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'x-api-key': API_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ action })
+        })
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            return res.json();
+          })
+          .then(data => {
+            console.log('Toggle response:', data);
+            return fetch(STATE_ENDPOINT, {
+              method: 'GET',
+              headers: {
+                'x-api-key': API_KEY,
+                'Content-Type': 'application/json'
+              }
+            });
+          })
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            return res.json();
+          })
+          .then(data => {
+            console.log('Post-toggle state fetch response:', data);
+            setPodState(data.state ? data.state.trim().toLowerCase() : '');
+            setLoading(false);
+          })
+          .catch(err => {
+            console.error('Toggle error:', err.message);
+            setError(`Failed to toggle power: ${err.message}`);
+            setLoading(false);
+          });
+      };
+
+      // Handle updating token count
+      const handleUpdateTokens = () => {
+        const count = parseInt(newTokenCount, 10);
+        if (isNaN(count) || count < 0) {
+          setError('Please enter a non-negative number.');
+          return;
+        }
+
+        setLoading(true);
+        fetch(TOKENS_COUNT_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'x-api-key': API_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: TOKEN_ID, action: 'set', count })
+        })
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            return res.json();
+          })
+          .then(data => {
+            console.log('Update tokens response:', data);
+            setTokenCount(data.count !== undefined ? data.count : 0);
+            setNewTokenCount('');
+            setLoading(false);
+            setError(null);
+          })
+          .catch(err => {
+            console.error('Update tokens error:', err.message);
+            setError(`Failed to update tokens: ${err.message}`);
+            setLoading(false);
+          });
+      };
+
+      if (loading) return <p className="text-xl">Loading...</p>;
+      if (error) return <p className="text-xl text-red-500">{error}</p>;
+
+      return (
+        <div className="text-center">
+          <img
+            src="https://s3.us-east-1.amazonaws.com/derrickfoos.com/images/CloudSurge-Logo.png"
+            alt="CloudSurge Logo"
+            className="mx-auto mb-4 max-h-40"
+          />
+          <h1 className="text-3xl font-bold mb-4">CloudSurge POD Admin Control</h1>
+          <p className="text-xl mb-4">POD is {podState.toUpperCase()}</p>
+          <p className="text-xl mb-4">
+            Tokens: <span role="img" aria-label="token" className="text-2xl">🪙</span> X {tokenCount}
+          </p>
+          <div className="mb-4">
+            <input
+              type="text"
+              value={newTokenCount}
+              onChange={(e) => setNewTokenCount(e.target.value)}
+              placeholder="Enter new token count"
+              className="border rounded px-2 py-1 mr-2"
+            />
+            <button
+              onClick={handleUpdateTokens}
+              className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+            >
+              Update Tokens
+            </button>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={podState === 'running'}
+              onChange={handleToggle}
+              disabled={podState === 'mix'}
+            />
+            <span className="slider"></span>
+          </label>
+          <p className="text-sm text-gray-500 mt-2">
+            {podState === 'mix'
+              ? 'Mixed state detected: switch disabled.'
+              : `Admin: Toggle to ${podState === 'running' ? 'stop' : 'start'} the pod.`}
+          </p>
+        </div>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
