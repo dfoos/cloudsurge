@@ -67,15 +67,15 @@
         // STATE_ENDPOINT: URL for checking EC2 instance state
         // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2/state
         // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2/state
-        const STATE_ENDPOINT = '';
+        const STATE_ENDPOINT = 'https://<api-id>.execute-api.us-east-1.amazonaws.com/prod/ec2/state';
         // CONTROL_ENDPOINT: URL for starting/stopping EC2 instances
         // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2
         // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2
-        const CONTROL_ENDPOINT = '';
+        const CONTROL_ENDPOINT = 'https:/<api-id>.execute-api.us-east-1.amazonaws.com/prod/ec2';
         // TOKENS_COUNT_ENDPOINT: URL for getting or updating token count
         // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/tokens/count
         // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/tokens/count
-        const TOKENS_COUNT_ENDPOINT = '';
+        const TOKENS_COUNT_ENDPOINT = 'https://<api-id>.execute-api.us-east-1.amazonaws.com/prod/tokens/count';
         const TOKEN_ID = 'my-token';
 
       // Fetch EC2 state and token count on load
