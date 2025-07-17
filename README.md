@@ -11,7 +11,8 @@ CloudSurge leverages AWS services (EC2, API Gateway, Lambda, Dynamo) and Terrafo
 
 ### CloudSurge in Action
 
-Watch Derrick demo CloudSurge
+#### Watch Derrick demo CloudSurge
+
 [![Watch the video](https://img.youtube.com/vi/gxzmq7Qi7pw/default.jpg)](https://youtu.be/gxzmq7Qi7pw)
 
 ## Tokens System
