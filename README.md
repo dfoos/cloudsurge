@@ -103,7 +103,7 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 2. **Create an IAM User for Terraform**:
    - In the AWS Console, navigate to **IAM** > **Users** > **Add users**.
    - Name the user (e.g., `terraform-user`) and select **Programmatic access**.
-   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production (use `custom_permisiions.json`)).
+   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production (use `custom_permissions.json`)).
    - Download the **Access Key ID** and **Secret Access Key** CSV file.
 
 3. **Configure AWS CLI**:
@@ -276,25 +276,6 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
     ```
    - Save with UTF-8 encoding.
 
-## Using the HTML Files
-
-1. **Test Locally**:
-   - Start a local web server:
-     ```cmd
-     python -m http.server 8000
-     ```
-   - Open in a browser:
-     - User page: `http://localhost:8000/index.html`
-       - Displays instance state (ON/OFF) and a switch to start a stopped instance.
-     - Admin page: `http://localhost:8000/admin.html`
-       - Displays instance state and a switch to start or stop the instance.
-
-2. **View EC2 Webpage**:
-   - Get the EC2 public IP:
-     ```cmd
-     terraform output instance_ip
-     ```
-   - Browse to `http://<instance_ip>` to see the welcome page with the OnBase logo.
 
 ## Calling the API Directly with PowerShell
 
