@@ -16,7 +16,7 @@ CloudSurge leverages AWS services (EC2, API Gateway, Lambda, Dynamo) and Terrafo
 
 ## Tokens System
 
-The CloudSurge application uses a token-based system to control access to starting EC2 instances. Tokens represent credits that customers spend to power on their POD (a group of EC2 instances tagged with `environment=ut`). This section explains how tokens work, how they are managed, and how to interact with the token system.
+The CloudSurge application uses a token-based system to control access to starting EC2 instances. Tokens represent credits that users spend to power on their POD (a group of EC2 instances tagged with `environment=ut`). This section explains how tokens work, how they are managed, and how to interact with the token system.
 
 ### Overview
 
