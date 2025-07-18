@@ -1,19 +1,17 @@
-![CloudSurge](https://s3.us-east-1.amazonaws.com/derrickfoos.com/images/CloudSurge-Logo.png)
+![CloudSurge](/media/cloudsurge-logo.png)
+
 
 # CloudSurge
+[YouTube demo](https://youtu.be/gxzmq7Qi7pw)
 
-CloudSurge is a proof-of-concept (PoC) platform for managing an AWS EC2 instance's power state via a web interface. It provides two user experiences:
-- **User Webpage** (`index.html`): Allows users to start a stopped EC2 instance.
-- **Admin Webpage** (`admin.html`): Enables administrators to start or stop the EC2 instance.
-- **EC2 Webpage**: Displays a simple welcome page with the OnBase logo when the instance is running.
+CloudSurge is a proof-of-concept (PoC) platform for managing a pod of AWS EC2 instance's power state via a web interface & api leveraging a tokenized access model. It provides two user experiences:
+- **User Webpage** (`index.html`): Allows users to start a pod of stopped EC2 instances.
+![User Webpage](/media/customer.png)
 
-CloudSurge leverages AWS services (EC2, API Gateway, Lambda, Dynamo) and Terraform for infrastructure management, making it an ideal demo for AWS cloud automation.
+- **Admin Webpage** (`admin.html`): Enables administrators to start or stop a pod of EC2 instances and assign tokens to customers.
+![Admin Webpage](/media/admin.png)
 
-### CloudSurge in Action
-
-#### Watch Derrick demo CloudSurge
-
-[![Watch the video](https://img.youtube.com/vi/gxzmq7Qi7pw/default.jpg)](https://youtu.be/gxzmq7Qi7pw)
+CloudSurge leverages AWS services (EC2, API Gateway, Lambda, Dynamo) and Terraform for infrastructure management, making it an ideal demo for cloud automation.
 
 ## Tokens System
 
@@ -90,6 +88,7 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 - **AWS Account**: Access to an AWS account with administrative privileges.
 - **Terraform**: Version 1.5 or later installed.
 - **Git**: For cloning the repository.
+- **AWS CLI**: Configured with credentials.
 - **Windows Host**: Command Prompt and PowerShell for running commands.
 - **Web Browser**: For testing webpages.
 - **Text Editor**: To update HTML files (e.g., Notepad).
@@ -104,17 +103,16 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 2. **Create an IAM User for Terraform**:
    - In the AWS Console, navigate to **IAM** > **Users** > **Add users**.
    - Name the user (e.g., `terraform-user`) and select **Programmatic access**.
-   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production (use `custom_permissions.json`)).
+   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production (use `custom_permisiions.json`)).
    - Download the **Access Key ID** and **Secret Access Key** CSV file.
 
-3. **Store AWS Credentials**:
+3. **Configure AWS CLI**:
+   - Install the AWS CLI: [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
+   - Run:
      ```cmd
-      rem Set the environment variables command prompt
-      set AWS_ACCESS_KEY_ID=<your-access-key-id>
-      set AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
-      set AWS_REGION=us-east-1
+     aws configure
      ```
-
+   - Enter the Access Key ID, Secret Access Key, region (e.g., `us-east-1`), and output format (`json`).
 
 ## Setting Up Terraform
 
@@ -156,6 +154,8 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
    ```
 
 2. **Apply Infrastructure**:
+   - Create a key pair for EC2 (e.g., `powergrid-key`) in the AWS Console under **EC2** > **Key Pairs**.
+   - Update `main.tf` or `modules/ec2/main.tf` with your `key_name` and region-specific AMI (e.g., `ami-0f3f13f145e66a0a3` for us-east-1).
    - Run:
      ```cmd
      terraform apply
@@ -222,31 +222,43 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 
 2. **Update Placeholders**:
    - Replace the following in both files with the Terraform outputs:
-     ```javascript
-    // Replace with Terraform outputs
-    const API_KEY = ''; // Your API Gateway API key (e.g., from aws_api_gateway_api_key.ec2_control_key)
-    // STATE_ENDPOINT: URL for checking EC2 instance state
-    // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2/state
-    // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2/state
-    const STATE_ENDPOINT = '';
-    // CONTROL_ENDPOINT: URL for starting/stopping EC2 instances
-    // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2
-    // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2
-    const CONTROL_ENDPOINT = '';
-    // TOKENS_COUNT_ENDPOINT: URL for getting or updating token count
-    // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/tokens/count
-    // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/tokens/count
-     ```
+    ```javascript
+        // Replace with Terraform outputs
+        const API_KEY = ''; // Your API Gateway API key (e.g., from aws_api_gateway_api_key.ec2_control_key)
+        // STATE_ENDPOINT: URL for checking EC2 instance state
+        // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2/state
+        // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2/state
+        const STATE_ENDPOINT = 'https://<api-id>.execute-api.us-east-1.amazonaws.com/prod/ec2/state';
+        // CONTROL_ENDPOINT: URL for starting/stopping EC2 instances
+        // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/ec2
+        // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/ec2
+        const CONTROL_ENDPOINT = 'https://<api-id>.execute-api.us-east-1.amazonaws.com/prod/ec2';
+        // TOKENS_COUNT_ENDPOINT: URL for getting or updating token count
+        // Format: https://<api-id>.execute-api.<region>.amazonaws.com/prod/tokens/count
+        // Example: https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/tokens/count
+        const TOKENS_COUNT_ENDPOINT = 'https://<api-id>.execute-api.us-east-1.amazonaws.com/prod/tokens/count';
+    ```
    - Save with UTF-8 encoding.
 
 ## Using the HTML Files
 
-1. **View EC2 Webpage**:
+1. **Test Locally**:
+   - Start a local web server:
+     ```cmd
+     python -m http.server 8000
+     ```
+   - Open in a browser:
+     - User page: `http://localhost:8000/index.html`
+       - Displays instance state (ON/OFF) and a switch to start a stopped instance.
+     - Admin page: `http://localhost:8000/admin.html`
+       - Displays instance state and a switch to start or stop the instance.
+
+2. **View EC2 Webpage**:
    - Get the EC2 public IP:
      ```cmd
      terraform output instance_ip
      ```
-   - Browse to `http://<instance_ip>` to see the welcome page with the logo.
+   - Browse to `http://<instance_ip>` to see the welcome page with the OnBase logo.
 
 ## Calling the API Directly with PowerShell
 
@@ -324,86 +336,6 @@ This section provides PowerShell examples for interacting with the CloudSurge AP
        ```
      - Notes: Decrements the token count by 1, used when customers start the POD.
 
-## Troubleshooting
-
-- **403 Forbidden on EC2 Webpage**:
-  - **Symptoms**: Webpage (`html/index.html` or `html/admin.html`) fails to load or shows API errors (e.g., “Failed to fetch data: HTTP error! Status: 403”).
-  - **Steps**:
-    1. SSH into the EC2 instance hosting the webpages:
-       ```bash
-       ssh -i powergrid-key.pem ec2-user@<instance_ip>
-       ```
-    2. Check user-data script logs for setup issues:
-       ```bash
-       sudo cat /var/log/cloud-init-output.log
-       ```
-    3. Check Nginx error logs:
-       ```bash
-       sudo cat /var/log/nginx/error.log
-       ```
-    4. Verify file permissions for the `html` directory (assuming webpages are in `/var/www/html/html`):
-       ```bash
-       sudo chmod 755 /var/www/html/html
-       sudo chmod 644 /var/www/html/html/index.html /var/www/html/html/admin.html
-       sudo chown -R nginx:nginx /var/www/html/html
-       sudo chcon -R -t httpd_sys_content_t /var/www/html/html
-       sudo systemctl restart nginx
-       ```
-    5. Confirm the API key and endpoints in `html/index.html` and `html/admin.html` match Terraform outputs:
-       ```powershell
-       terraform output api_key
-       terraform output api_invoke_url
-       ```
-       Run `update_html.bat` to update them if needed.
-
-- **API Errors**:
-  - **Symptoms**: API calls return 400, 403, or 500 status codes.
-  - **Steps**:
-    1. Verify API key and endpoints:
-       ```powershell
-       terraform output api_key
-       terraform output api_invoke_url
-       ```
-       Ensure they match the values in your PowerShell scripts or HTML files.
-    2. Check Lambda logs in CloudWatch:
-       - Navigate to **CloudWatch** > **Log Groups** > `/aws/lambda/<lambda-name>`.
-       - Look for errors (e.g., “Error getting token count”, “No active instances found”).
-    3. For token-related errors (e.g., 500 on `/tokens/count`):
-       - Verify the `TokenStore` DynamoDB table exists and the Lambda has permissions (`dynamodb:GetItem`, `dynamodb:PutItem`, `dynamodb:UpdateItem`).
-       - Check if `id=my-token` exists in `TokenStore` using the AWS Console or CLI:
-         ```bash
-         aws dynamodb get-item --table-name TokenStore --key '{"id": {"S": "my-token"}}'
-         ```
-       - If tokens don’t update, test the `POST /tokens/count` endpoint directly (see above).
-    4. For EC2-related errors (e.g., “No active instances found”):
-       - List instances tagged `environment=ut`:
-         ```bash
-         aws ec2 describe-instances --filters Name=tag:environment,Values=ut
-         ```
-       - Ensure instances are in `running`, `stopped`, `pending`, or `stopping` states, as `terminated`/`terminating` are ignored.
-       - If no instances are found, check tagging or create new instances with the correct tag.
-
-- **Token Count Issues**:
-  - **Symptoms**: Customer page shows `Tokens: 0 🪙` despite setting tokens, or admin page fails to update tokens.
-  - **Steps**:
-    1. Test the `GET /tokens/count` endpoint to confirm the current count.
-    2. Use the `POST /tokens/count` endpoint to set a known count (e.g., 100).
-    3. Check browser Developer Tools (F12) Console for API errors on the webpages.
-    4. Verify the `TOKEN_ID` in `html/index.html` and `html/admin.html` is `my-token`.
-    5. Inspect Lambda logs for DynamoDB errors (e.g., permission issues, table not found).
-
-- **General Tips**:
-  - Ensure CORS is enabled in API Gateway for the `/ec2` and `/tokens/count` resources.
-  - If webpages are unresponsive, reload and check Network tab in Developer Tools (F12) for failed requests.
-  - Run `update_html.bat` after Terraform changes to sync API key and endpoints in `html/index.html` and `html/admin.html`.
-
-- **Terraform Issues**:
-  - Enable debug logging:
-    ```cmd
-    set TF_LOG=DEBUG
-    terraform apply > terraform.log
-    set TF_LOG=
-    ```
 
 ## Cleanup
 
@@ -413,17 +345,6 @@ terraform destroy
 ```
 Type `yes` to confirm.
 
-## Security Notes
-
-- Restrict SSH access in `modules/ec2/main.tf` post-hackathon:
-  ```hcl
-  cidr_blocks = ["<your_ip>/32"]
-  ```
-- Use least-privilege IAM policies for Lambda and Terraform user in production.
-- Regenerate API key after demo:
-  ```cmd
-  terraform apply
-  ```
 
 ## Architecture Diagram
 
@@ -517,4 +438,4 @@ This project is for demonstration purposes only and is not licensed for producti
 
 ---
 
-Built for the Hackathon by the Transform Engineering Team. Happy cloud surging!
+Built for the Hackathon by the Transform Engineering Team. Happy cloud surging🤘!
