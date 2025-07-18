@@ -406,7 +406,7 @@ The following diagram illustrates the CloudSurge hackathon project’s architect
 |   Lambda Function |                                       |  EC2 Instances    |
 |  - Get EC2 State  |                                       |  (POD)            |
 |  - Start/Stop EC2 |                                       |  - Tagged:        |
-|  - Get/Set/       |<---- AWS SDK (DynamoDB) ------>|    environment=ut |
+|  - Get/Set/       |       <---- AWS SDK (DynamoDB) ------>|    environment=ut |
 |    Subtract Tokens|                                       |  - States:        |
 |                   |                                       |    running,       |
 |                   |                                       |    stopped, etc.  |
