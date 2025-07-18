@@ -132,18 +132,46 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 
 3. **Directory Structure**:
    ```
-   cloudsurge/
-   ├── main.tf
-   ├── modules/
-   │   ├── ec2/
-   │   │   └── main.tf
-   │   ├── lambda/
-   │   │   └── main.tf
-   │   ├── api/
-   │   │   └── main.tf
-   ├── index.html
-   ├── admin.html
-   └── README.md
+    cloudsurge/
+    ├── .git/
+    ├── .gitignore
+    ├── README.md
+    ├── main.tf
+    ├── outputs.tf
+    ├── variables.tf
+    ├── html/
+    │   ├── admin.htm
+    │   └── index.htm
+    ├── media/
+    │   ├── admin.png
+    │   ├── cloudsurge-logo.png
+    │   └── customer.png
+    ├── modules/
+    │   ├── api/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── dynamo/
+    │   │   └── main.tf
+    │   ├── ec2/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── lambda/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── lambda_function/
+    │   │       ├── ec2_control.py
+    │   │       └── ec2_control.zip
+    │   └── vpc/
+    │       ├── main.tf
+    │       ├── outputs.tf
+    │       └── variables.tf
+    └── supporting/
+        ├── custom_permissions.json
+        ├── export.bat
+        ├── test-all.ps1
+        └── test-api.ps1
    ```
 
 ## Deploying CloudSurge with Terraform
