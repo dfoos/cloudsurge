@@ -89,10 +89,6 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 - **AWS Account**: Access to an AWS account with administrative privileges.
 - **Terraform**: Version 1.5 or later installed.
 - **Git**: For cloning the repository.
-- **AWS CLI**: Configured with credentials.
-- **Windows Host**: Command Prompt and PowerShell for running commands.
-- **Web Browser**: For testing webpages.
-- **Text Editor**: To update HTML files (e.g., Notepad).
 
 ## Setting Up an AWS Account
 
@@ -104,21 +100,35 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 2. **Create an IAM User for Terraform**:
    - In the AWS Console, navigate to **IAM** > **Users** > **Add users**.
    - Name the user (e.g., `terraform-user`) and select **Programmatic access**.
-   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production (use `custom_permissions.json`)).
+   - Attach the `AdministratorAccess` policy (for simplicity; restrict in production using `custom_permissions.json`).
    - Download the **Access Key ID** and **Secret Access Key** CSV file.
 
-3. **Configure AWS CLI**:
-   - Install the AWS CLI: [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
-   - Run:
-     ```cmd
-     aws configure
-     ```
-   - Enter the Access Key ID, Secret Access Key, region (e.g., `us-east-1`), and output format (`json`).
+3. **Configure AWS Credentials (Environment Variables)**
+  - [Terraform AWS Provider - Authentication and Configuration ](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration)
+
+   #### 🔐 Required Environment Variables:
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+   - *(Optional)* `AWS_SESSION_TOKEN` (if using temporary credentials)
+   - *(Optional)* `AWS_DEFAULT_REGION`
+
+   ### 📌 For Windows (Command Prompt)
+   ```cmd
+   set AWS_ACCESS_KEY_ID=your_access_key
+   set AWS_SECRET_ACCESS_KEY=your_secret_key
+   set AWS_DEFAULT_REGION=us-east-1
+   ```
+   ### 📌 For Linux / macOS
+   ```bash
+   export AWS_ACCESS_KEY_ID=your_access_key
+   export AWS_SECRET_ACCESS_KEY=your_secret_key
+   export AWS_DEFAULT_REGION=us-east-1
+   ```
 
 ## Setting Up Terraform
 
 1. **Install Terraform**:
-   - Download Terraform from [terraform.io](https://www.terraform.io/downloads.html) for Windows.
+   - Download Terraform from [terraform.io](https://www.terraform.io/downloads.html).
    - Extract the binary and add it to your system PATH.
    - Verify:
      ```cmd
