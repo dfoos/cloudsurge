@@ -214,13 +214,21 @@ For more details on the web interface, see the [Customer Page](#customer-page) a
 
 ## Updating API Credentials in HTML Files
 
-1. **Open HTML Files**:
+1. **Obtain API Values from Terraform**:
+   - Run the following commands in the same shell used to run Terraform:
+   ```cmd
+   terraform output api_key
+   terraform output state_endpoint
+   terraform output api_endpoint
+   ```
+
+2. **Open HTML Files**:
    ```cmd
    notepad index.html
    notepad admin.html
    ```
 
-2. **Update Placeholders**:
+3. **Update Placeholders**:
    - Replace the following in both files with the Terraform outputs:
     ```javascript
         // Replace with Terraform outputs
