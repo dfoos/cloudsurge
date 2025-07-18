@@ -2,6 +2,7 @@
 
 
 # CloudSurge
+[YouTube Presentation for optimizing AWS costs & sustainability for AWS EC2](https://youtu.be/WaRfZgtWw04?si=nTAZCOtfxASBvxlC)
 [YouTube demo](https://youtu.be/gxzmq7Qi7pw)
 
 CloudSurge is a proof-of-concept (PoC) platform that allows users to manage the power state of a pod of AWS EC2 instances via a web interface or API. The platform uses a token-based system to control access to starting instances. Users spend tokens as credits to power on their PODs (groups of EC2 instances tagged with environment=ut).
